@@ -1,4 +1,5 @@
 <?php 
+namespace App\Providers;
 
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
