@@ -67,4 +67,12 @@ Route::get('/db-test', function () {
         return 'DB NOT Connected ❌ Error: ' . $e->getMessage();
     }
 });
+
+Route::get('/show-log', function () {
+    $log = storage_path('logs/laravel.log');
+    if (file_exists($log)) {
+        return response()->file($log);
+    }
+    return 'No log file found';
+});
 require __DIR__.'/auth.php';
