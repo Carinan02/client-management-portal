@@ -1,0 +1,20 @@
+<?php
+
+namespace App\Policies;
+
+use App\Models\User;
+use Illuminate\Auth\Access\Response;
+
+class UserPolicy
+{
+    // Only admins can manage users
+    public function viewAny(User $user): bool   { return $user->isAdmin(); }
+    public function view(User $user): bool      { return $user->isAdmin(); }
+    public function create(User $user): bool    { return $user->isAdmin(); }
+    public function update(User $user): bool    { return $user->isAdmin(); }
+    public function delete(User $user, User $target): bool
+    {
+        // Prevent admin from deleting themselves
+        return $user->isAdmin() && $user->id !== $target->id;
+    }
+}
