@@ -39,18 +39,9 @@ admin
 RUN XAMPP
 http://localhost:8080/phpmyadmin/
 
-php artisan migrate
-MODIFY USERS add column role
-php artisan make:migration add_role_to_users_table --table=users
-$table->boolean('is_active')->default(true)->after('role');
-create seeder
-php artisan make:seeder UserSeeder
 
-php artisan db:seed --class=UserSeeder
-
-php artisan make:policy UserPolicy --model=User
-
-php artisan make:middleware RoleMiddleware
+php artisan migrate - run migration
+php artisan db:seed - run seeders
 
 # .env
 QUEUE_CONNECTION=database
@@ -59,8 +50,12 @@ QUEUE_CONNECTION=database
 php artisan queue:table
 php artisan migrate
 
-# Must be running for imports to process
+# DEV Must be running for imports to process
 php artisan queue:work
 
 #creates a jop folder 
 php artisan make:job ProcessClientImport
+
+FREE PRODUCTION PLATFORM
+https://railway.com/
+ - because it is easy to use and complete with mysql already, some free hosting dont have mysql
