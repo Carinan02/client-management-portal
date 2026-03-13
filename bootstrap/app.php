@@ -15,7 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\HandleInertiaRequests::class,
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
         ]);
-
+        $middleware->trustProxies(at: '*');  // ← add this
         // Register the role middleware alias so routes can use middleware('role:admin')
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
