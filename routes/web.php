@@ -9,6 +9,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ImportController;
+use Illuminate\Support\Facades\DB;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -58,5 +59,12 @@ Route::middleware('role:admin,manager')->group(function () {
         Route::get('imports/latest', [ImportController::class, 'latest'])->name('imports.latest');
     });
 
-
+Route::get('/db-test', function () {
+    try {
+        DB::connection()->getPdo();
+        return 'DB Connected! ✅ Database: ' . DB::connection()->getDatabaseName();
+    } catch (\Exception $e) {
+        return 'DB NOT Connected ❌ Error: ' . $e->getMessage();
+    }
+});
 require __DIR__.'/auth.php';
