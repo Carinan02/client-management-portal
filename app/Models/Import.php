@@ -7,14 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 class Import extends Model
 {
     protected $fillable = [
-        'started_by',
-        'filename',
-        'stored_path', 
-        'status',            // Queued | Processing | Completed | Failed
-        'imported_count',
-        'skipped_count',
-       
-    ];
+    'started_by',
+    'filename',
+    'file_name',        // ← add
+    'file_contents',
+    'stored_path',
+    'status',
+    'imported_count',
+    'skipped_count',
+    'error_message',    // ← add
+];
 
     protected $casts = [
         'imported_count' => 'integer',

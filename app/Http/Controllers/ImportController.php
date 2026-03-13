@@ -17,80 +17,31 @@ class ImportController extends Controller
     }
 
     public function store(Request $request){
-       
-     $request->validate([
-            'file' => ['required', 'file', 'mimes:csv,txt,xlsx,xls', 'max:20480'],
-        ]);
+   
+    $request->validate([
+        'file' => ['required', 'file', 'mimes:csv,txt,xlsx,xls', 'max:20480'],
+    ]);
 
-        $file          = $request->file('file');
-        $originalName  = $file->getClientOriginalName();
-         /* FOR MODULE 5 
+    $file         = $request->file('file');
+    $originalName = $file->getClientOriginalName();
 
-        $clientsImport = new ClientsImport();
+    // Store file contents in DB so the queue worker (separate container)
+    // can access it without needing a shared filesystem.
+    $import = Import::create([
+    'started_by'    => auth()->id(),
+    'filename'      => $originalName,
+    'file_name'     => $originalName,  // ← add this
+    'file_contents' => base64_encode(file_get_contents($file->getRealPath())),
+    'stored_path'   => '',
+    'status'        => 'Queued',
+]);
 
-        try {
-            // Run the import synchronously — Excel handles CSV and XLSX transparently
-            Excel::import($clientsImport, $file);
+    ProcessClientImport::dispatch($import);
 
-            $importedCount = $clientsImport->importedCount();
-            $skippedCount  = $clientsImport->skippedCount();
-
-            Import::create([
-                'started_by'     => auth()->id(),
-                'filename'       => $originalName,
-                'status'         => 'Completed',
-                'imported_count' => $importedCount,
-                'skipped_count'  => $skippedCount,
-            ]);
-
-            // Flash a structured summary — the React page renders a result banner
-            return redirect()
-                ->route('clients.index')
-                ->with('import_summary', [
-                    'filename' => $originalName,
-                    'imported' => $importedCount,
-                    'skipped'  => $skippedCount,
-                    'status'   => 'Completed',
-                ]);
-
-        } catch (\Throwable $e) {
-            Import::create([
-                'started_by'     => auth()->id(),
-                'filename'      => $originalName,
-                'status'        => 'Failed',
-            ]);
-
-            return redirect()
-                ->route('clients.index')
-                ->with('error', 'Import failed: ' . $e->getMessage());
-        }
-                */
-
-        
-
-        $file         = $request->file('file');
-        $originalName = $file->getClientOriginalName();
-
-        // Persist the file so the queue worker can read it after the HTTP
-        // request has ended (the temp file would otherwise be deleted).
-        $storedPath = $file->store('imports', 'local');
-
-        // Create the import record in Queued state before dispatching so the
-        // UI can show it immediately on the next page load.
-        $import = Import::create([
-            'started_by'     => auth()->id(),
-            'filename'    => $originalName,
-            'stored_path' => $storedPath,
-            'status'      => 'Queued',
-        ]);
-
-        // Hand off to the queue — returns immediately.
-        ProcessClientImport::dispatch($import);
-
-        return redirect()
-            ->route('clients.index')
-            ->with('success', 'Import started! You can monitor progress in the Imports section below.');
-    }
+    return redirect()
+        ->route('clients.index')
+        ->with('success', 'Import started! You can monitor progress in the Imports section below.');
+}
 
 
 
